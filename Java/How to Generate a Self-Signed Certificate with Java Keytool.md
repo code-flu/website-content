@@ -1,5 +1,3 @@
-# How to Generate a Self-Signed Certificate with Keytool
-
 Creating a self-signed SSL certificate is an essential skill for developers, allowing them to enable secure communications and test their applications locally. In this guide, we will demonstrate how to generate a self-signed certificate using the Java Keytool utility. This process will involve generating a keystore, exporting a certificate from the keystore, and importing the certificate into a truststore.
 
 ## Generate Self-Signed Certificate
