@@ -6,7 +6,8 @@ name: Build and execute script to build json for web content.
 on:
   push:
     branches: [ "main" ]
-
+    paths-ignore:
+      - 'content.json'
 jobs:
 
   build:
@@ -31,3 +32,11 @@ jobs:
       with:
         name: json-output
         path: content.json
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+        git add content.json
+        git commit -m "Automatically update content.json"
+        git push
