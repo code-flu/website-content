@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -74,7 +75,7 @@ func getDirectoryFileInfo(branchName string, directoryName string, fileName stri
 		message := commitNode["message"].(string)
 		date := committerNode["date"].(string)
 		author := committerNode["name"].(string)
-		fileContent["date"] = date
+		fileContent["date"] = getTimeAgo(date)
 		fileContent["description"] = message
 		fileContent["author"] = author
 		fileContent["tag"] = directoryName
@@ -162,4 +163,10 @@ func getContent(url string, headers map[string]string) ([]map[string]interface{}
 		return nil, fmt.Errorf("unmarshaling response: %w", err)
 	}
 	return arrayNode, nil
+}
+
+func getTimeAgo(inputDate string) string {
+	parsedTime, _ := time.Parse(time.RFC3339, inputDate)
+	timeAgo := parsedTime.Format("02-Jan-2006")
+	return timeAgo
 }
