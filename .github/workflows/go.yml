@@ -25,3 +25,9 @@ jobs:
     - name: Run
       run: |
         ./script
+
+    - name: Upload JSON File
+      uses: actions/upload-artifact@v3
+      with:
+        name: json-output
+        path: content.json
