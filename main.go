@@ -95,7 +95,7 @@ func getDirectoryFiles(branchName string, directoryName string, content map[stri
 	for _, node := range nodes {
 		fileName := node["name"].(string)
 		filePath := node["path"].(string)
-		directoryContent[fileName] = map[string]interface{}{"path": filePath}
+		directoryContent[fileName] = map[string]interface{}{"path": strings.TrimSuffix(filePath, ".md")}
 	}
 	content[branchName] = branchContent
 	return content, nil
