@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -27,6 +29,24 @@ var (
 	CONTENTS_ENDPOINT = "%s/contents"
 	COMMITS_ENDPOINT  = "%s/commits"
 )
+
+// URLSet corresponds to the <urlset> element
+type URLSet struct {
+	XMLName xml.Name `xml:"urlset"`
+	XMLNS   string   `xml:"xmlns,attr"`
+	URLs    []URL    `xml:"url"`
+}
+
+// URL corresponds to the <url> element
+type URL struct {
+	Loc string `xml:"loc"`
+}
+
+var urls = []string{
+	"https://www.codeflu.com",
+	"https://www.codeflu.com/JsonToSql",
+	"https://www.codeflu.com/mavenTree",
+}
 
 func main() {
 	BASE_PATH_FORMAT = fmt.Sprintf(BASE_PATH_FORMAT, base_url, owner, repository)
@@ -57,7 +77,8 @@ func main() {
 	}
 
 	jsonStr, _ := json.Marshal(content)
-	ioutil.WriteFile("content.json", jsonStr, 0644)
+	os.WriteFile("content.json", jsonStr, 0644)
+	writeSitemap(content)
 }
 
 func getDirectoryFileInfo(branchName string, directoryName string, fileName string, content map[string]interface{}) (map[string]interface{}, error) {
@@ -85,7 +106,7 @@ func getDirectoryFileInfo(branchName string, directoryName string, fileName stri
 }
 
 func getDirectoryFiles(branchName string, directoryName string, content map[string]interface{}) (map[string]interface{}, error) {
-	url := fmt.Sprintf("%s/%s?ref=%s", CONTENTS_ENDPOINT, strings.Replace(directoryName, " ", "%20", -1), branchName)
+	url := fmt.Sprintf("%s/%s?ref=%s", CONTENTS_ENDPOINT, directoryName, branchName)
 	nodes, err := getContent(url, headers)
 	if err != nil {
 		return nil, err
@@ -94,7 +115,7 @@ func getDirectoryFiles(branchName string, directoryName string, content map[stri
 	directoryContent := branchContent[directoryName].(map[string]interface{})
 	for _, node := range nodes {
 		fileName := node["name"].(string)
-		filePath := node["path"].(string)
+		filePath := strings.Replace(node["path"].(string), " ", "%20", -1)
 		directoryContent[fileName] = map[string]interface{}{"path": strings.TrimSuffix(filePath, ".md")}
 	}
 	content[branchName] = branchContent
@@ -169,4 +190,33 @@ func getTimeAgo(inputDate string) string {
 	parsedTime, _ := time.Parse(time.RFC3339, inputDate)
 	timeAgo := parsedTime.Format("02-Jan-2006")
 	return timeAgo
+}
+
+func writeSitemap(content map[string]interface{}) {
+	generateSitemapURLs("https://www.codeflu.com/post/", content, &urls)
+	// Prepare the URLSet data structure
+	urlSet := URLSet{
+		XMLNS: "http://www.sitemaps.org/schemas/sitemap/0.9",
+		URLs:  make([]URL, len(urls)),
+	}
+	// Populate the URLSet with URLs
+	for i, url := range urls {
+		urlSet.URLs[i] = URL{Loc: url}
+	}
+	// Marshal the URLSet into XML
+	output, _ := xml.MarshalIndent(urlSet, "", "    ")
+	os.WriteFile("sitemap.xml", []byte(xml.Header+string(output)), 0644)
+}
+
+func generateSitemapURLs(basePath string, data map[string]interface{}, urls *[]string) {
+	for key, value := range data {
+		if nestedMap, ok := value.(map[string]interface{}); ok {
+			// Only construct path and recurse if the value is an object (map)
+			nextPath := fmt.Sprintf("%s/%s", strings.Trim(basePath, "/"), strings.Replace(strings.TrimSuffix(key, ".md"), " ", "%20", -1))
+			generateSitemapURLs(nextPath, nestedMap, urls)
+		} else {
+			*urls = append(*urls, basePath)
+			return
+		}
+	}
 }

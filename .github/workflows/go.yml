@@ -8,6 +8,7 @@ on:
     branches: [ "main" ]
     paths-ignore:
       - 'content.json'
+      - 'sitemap.xml'
 jobs:
 
   build:
@@ -33,6 +34,6 @@ jobs:
       run: |
         git config --global user.email "noreply@github.com"
         git config --global user.name "GitHub"
-        git add content.json
+        git add content.json sitemap.xml
         git commit -m "Automatically update content.json"
         git push
