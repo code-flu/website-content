@@ -211,7 +211,6 @@ func writeSitemap(content map[string]interface{}) {
 func generateSitemapURLs(basePath string, data map[string]interface{}, urls *[]string) {
 	for key, value := range data {
 		if nestedMap, ok := value.(map[string]interface{}); ok {
-			// Only construct path and recurse if the value is an object (map)
 			nextPath := fmt.Sprintf("%s/%s", strings.Trim(basePath, "/"), strings.Replace(strings.TrimSuffix(key, ".md"), " ", "%20", -1))
 			generateSitemapURLs(nextPath, nestedMap, urls)
 		} else {
