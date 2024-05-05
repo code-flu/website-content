@@ -219,3 +219,4 @@ func generateSitemapURLs(basePath string, data map[string]interface{}, urls *[]s
 		}
 	}
 }
+
