@@ -19,7 +19,7 @@ const (
 )
 
 var headers = map[string]string{
-	"Authorization": "Bearer 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",
+	//"Authorization": "Bearer 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",
 	"Accept":        "application/vnd.github.v3+json",
 }
 
