@@ -27,6 +27,9 @@ Once you have the `Airlift.xml` file, you need to import it into your IntelliJ I
 5.  Navigate to where you saved the `Airlift.xml` file, select it, and click OK.
 6.  Once imported, make sure that Airlift is selected as the current code style scheme.
 
+   ![instruction](https://github.com/code-flu/website-content/assets/104217888/28a24be0-8818-4ce0-ab3e-50fd0156225a)
+
+
 ### Step 4: Use the Airlift Code Style in Your Projects
 
 With the Airlift scheme now active, IntelliJ IDEA will automatically format your Java code according to the rules specified in the Airlift style guide whenever you write code or reformat existing code. You can manually reformat your code by using the shortcut `Ctrl+Alt+L` on Windows/Linux or `Cmd+Alt+L` on macOS.
