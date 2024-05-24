@@ -46,7 +46,7 @@ var urls = []string{
 	"https://www.codeflu.com",
 	"https://www.codeflu.com/JsonToSql",
 	"https://www.codeflu.com/mavenTree",
-	"https://www.codeflu.com/pomFormatter"
+	"https://www.codeflu.com/pomFormatter",
 }
 
 func main() {
