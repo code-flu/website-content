@@ -116,8 +116,10 @@ func getDirectoryFiles(branchName string, directoryName string, content map[stri
 	directoryContent := branchContent[directoryName].(map[string]interface{})
 	for _, node := range nodes {
 		fileName := node["name"].(string)
-		filePath := strings.Replace(node["path"].(string), " ", "%20", -1)
-		directoryContent[fileName] = map[string]interface{}{"path": strings.TrimSuffix(filePath, ".md")}
+		if strings.HasSuffix(fileName, ".md") {
+			filePath := strings.Replace(node["path"].(string), " ", "%20", -1)
+			directoryContent[fileName] = map[string]interface{}{"path": strings.TrimSuffix(filePath, ".md")}
+		}
 	}
 	content[branchName] = branchContent
 	return content, nil
