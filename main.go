@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -19,8 +20,7 @@ const (
 )
 
 var headers = map[string]string{
-	//"Authorization": "Bearer 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",
-	"Accept":        "application/vnd.github.v3+json",
+	"Accept": "application/vnd.github.v3+json",
 }
 
 var (
@@ -133,8 +133,10 @@ func getDirectories(branchName string, content map[string]interface{}) (map[stri
 	}
 	branchContent := content[branchName].(map[string]interface{})
 	for _, node := range nodes {
-		dirName := node["name"].(string)
-		branchContent[dirName] = make(map[string]interface{})
+		if node["type"].(string) == "dir" {
+			dirName := node["name"].(string)
+			branchContent[dirName] = make(map[string]interface{})
+		}
 	}
 	return content, nil
 }
@@ -154,9 +156,21 @@ func getBranches(content map[string]interface{}) (map[string]interface{}, error)
 	return content, nil
 }
 
-func getContent(url string, headers map[string]string) ([]map[string]interface{}, error) {
+func getContent(rawUrl string, headers map[string]string) ([]map[string]interface{}, error) {
+	// Parse the URL to encode the path and query parameters
+	parsedURL, err := url.Parse(rawUrl)
+	if err != nil {
+		return nil, fmt.Errorf("parsing URL: %w", err)
+	}
+
+	// Encode only the path
+	parsedURL.Path = url.PathEscape(parsedURL.Path)
+
+	// Rebuild the encoded URL
+	finalURL := parsedURL.String()
+	fmt.Println("=> ", finalURL)
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
@@ -173,7 +187,7 @@ func getContent(url string, headers map[string]string) ([]map[string]interface{}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("Resource %s Not Found", url)
+		log.Printf("Resource %s Not Found", finalURL)
 		return nil, fmt.Errorf("resource not found")
 	}
 
